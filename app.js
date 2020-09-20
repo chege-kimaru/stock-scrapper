@@ -75,7 +75,7 @@ const restartCron = () => {
   if (task) {
     task.destroy();
   }
-  task = cron.schedule("*/20 * * * *", async () => {
+  task = cron.schedule("*/5 * * * *", async () => {
     console.log("Cron started " + new Date());
     const scom = await getPrice("SCOM");
     const kcb = await getPrice("KCB");
