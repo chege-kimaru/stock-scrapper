@@ -1,0 +1,45 @@
+<style>
+    .row {
+        margin: 1rem;
+    }
+</style>
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4">Update tracker variables</h1>
+        <div class="lead">
+            <form action="/init">
+                <div class="row">
+                    <div class="col">
+                        <input name="SCOM" type="number" class="form-control"
+                            placeholder="Safaricom Initial (Optional)">
+                    </div>
+                    <div class="col">
+                        <input name="TSCOM" required type="number" class="form-control"
+                            placeholder="Safaricom Threshold (Required)">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input name="EQTY" type="number" class="form-control" placeholder="Equity Initial (Optional)">
+                    </div>
+                    <div class="col">
+                        <input name="TEQTY" required type="number" class="form-control"
+                            placeholder="Equity Threshold (Required)">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input name="KCB" type="number" class="form-control" placeholder="KCB Initial (Optional)">
+                    </div>
+                    <div class="col">
+                        <input name="TKCB" required type="number" class="form-control"
+                            placeholder="KCB Threshold (Required)">
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" type="submit">Update</a>
+                </div>
+            </form>
+            </p>
+        </div>
+    </div>
