@@ -11,7 +11,7 @@ let KCB = 0;
 let EQTY = 0;
 
 let TSCOM = 28;
-let TKCB = 0;
+let TKCB = 30;
 let TEQTY = 32;
 
 let task = null;
@@ -53,7 +53,7 @@ const getPrice = async (company) => {
   let browser;
   try {
     const url = `https://live.mystocks.co.ke/stock=${company}`;
-    browser = await puppeteer.launch();
+    browser = await puppeteer.launch({ args: ["--no-sandbox"] });
     const page = await browser.newPage();
     await page.goto(url, {
       waitUntil: "networkidle2",
@@ -67,7 +67,11 @@ const getPrice = async (company) => {
     return price;
   } catch (e) {
     console.error(e);
-    await browser.close();
+    try {
+      await browser.close();
+    } catch (e) {
+      console.error(e);
+    }
   }
 };
 
