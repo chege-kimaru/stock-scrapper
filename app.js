@@ -53,7 +53,9 @@ const getPrice = async (company) => {
   let browser;
   try {
     const url = `https://live.mystocks.co.ke/stock=${company}`;
-    browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+    browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
     await page.goto(url, {
       waitUntil: "networkidle2",
@@ -130,11 +132,11 @@ const restartCron = () => {
 app.get("/init", async (req, res) => {
   SCOM = parseFloat(req.query.SCOM) || SCOM;
   KCB = parseFloat(req.query.KCB) || KCB;
-  EQTY = parseFloat(req.query.SCOM) || EQTY;
+  EQTY = parseFloat(req.query.EQTY) || EQTY;
 
   TSCOM = parseFloat(req.query.TSCOM) || TSCOM;
   TKCB = parseFloat(req.query.TKCB) || TKCB;
-  TEQTY = parseFloat(req.query.SCOM) || TEQTY;
+  TEQTY = parseFloat(req.query.TEQTY) || TEQTY;
 
   console.log("Safaricom threshold", TSCOM);
   console.log("KCB threshold", TKCB);
@@ -149,7 +151,7 @@ app.get("/init", async (req, res) => {
 });
 
 app.get("/update", (req, res) => {
-  res.render("update");
+  res.render("update", { SCOM, EQTY, KCB, TSCOM, TEQTY, TKCB });
 });
 
 app.get("/", (req, res) => {

@@ -10,26 +10,31 @@
             <form action="/init">
                 <div class="row">
                     <div class="col">
-                        <input name="SCOM" class="form-control" placeholder="Safaricom Initial (Optional)">
+                        <input value="{{SCOM}}" name="SCOM" class="form-control"
+                            placeholder="Safaricom Initial (Optional)">
                     </div>
                     <div class="col">
-                        <input name="TSCOM" required class="form-control" placeholder="Safaricom Threshold (Required)">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <input name="EQTY" class="form-control" placeholder="Equity Initial (Optional)">
-                    </div>
-                    <div class="col">
-                        <input name="TEQTY" required class="form-control" placeholder="Equity Threshold (Required)">
+                        <input value="{{TSCOM}}" name="TSCOM" required class="form-control"
+                            placeholder="Safaricom Threshold (Required)">
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
-                        <input name="KCB" class="form-control" placeholder="KCB Initial (Optional)">
+                        <input value="{{EQTY}}" name="EQTY" class="form-control"
+                            placeholder="Equity Initial (Optional)">
                     </div>
                     <div class="col">
-                        <input name="TKCB" required class="form-control" placeholder="KCB Threshold (Required)">
+                        <input value="{{TEQTY}}" name="TEQTY" required class="form-control"
+                            placeholder="Equity Threshold (Required)">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input value="{{KCB}}" name="KCB" class="form-control" placeholder="KCB Initial (Optional)">
+                    </div>
+                    <div class="col">
+                        <input value="{{TKCB}}" name="TKCB" required class="form-control"
+                            placeholder="KCB Threshold (Required)">
                     </div>
                 </div>
                 <div class="text-center">
