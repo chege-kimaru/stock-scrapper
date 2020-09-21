@@ -6,13 +6,13 @@ const cron = require("node-cron");
 const path = require("path");
 const exphbs = require("express-handlebars");
 
-let SCOM = 0;
-let KCB = 0;
-let EQTY = 0;
+let SCOM = 30;
+let KCB = 37.9;
+let EQTY = 36.5;
 
 let TSCOM = 28;
-let TKCB = 30;
-let TEQTY = 32;
+let TKCB = 32;
+let TEQTY = 30;
 
 let task = null;
 
@@ -81,7 +81,7 @@ const restartCron = () => {
   if (task) {
     task.destroy();
   }
-  task = cron.schedule("*/5 * * * *", async () => {
+  task = cron.schedule("* * * * *", async () => {
     console.log("Cron started " + new Date());
     const scom = await getPrice("SCOM");
     const kcb = await getPrice("KCB");
@@ -121,13 +121,7 @@ const restartCron = () => {
   task.start();
 };
 
-// restartCron();
-
-// (async () => {
-//   await getPrice("SCOM");
-//   await getPrice("KCB");
-//   await getPrice("EQTY");
-// })();
+restartCron();
 
 app.get("/init", async (req, res) => {
   SCOM = parseFloat(req.query.SCOM) || SCOM;
