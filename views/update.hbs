@@ -5,40 +5,52 @@
 </style>
 <div class="container">
     <div class="jumbotron">
-        <h1 class="display-4">Update tracker variables</h1>
+        <h1 class="display-4">Set Thresholds</h1>
         <div class="lead">
             <form action="/init">
                 <div class="row">
+                    {{!-- <div class="col">
+                        <input value="{{SCOM}}" name="SCOM" class="form-control" placeholder="Safaricom Initial (Optional)">
+                    </div> --}}
                     <div class="col">
-                        <input value="{{SCOM}}" name="SCOM" class="form-control"
-                            placeholder="Safaricom Initial (Optional)">
-                    </div>
-                    <div class="col">
-                        <input value="{{TSCOM}}" name="TSCOM" required class="form-control"
-                            placeholder="Safaricom Threshold (Required)">
+                        <div class="form-group">
+                            <label for="">Safaricom</label>
+                            <input value="{{TSCOM}}" name="TSCOM" required class="form-control"
+                                placeholder="Safaricom Threshold (Required)">
+                        </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    {{!-- <div class="col">
                         <input value="{{EQTY}}" name="EQTY" class="form-control"
                             placeholder="Equity Initial (Optional)">
-                    </div>
+                    </div> --}}
                     <div class="col">
-                        <input value="{{TEQTY}}" name="TEQTY" required class="form-control"
-                            placeholder="Equity Threshold (Required)">
+                        <div class="form-group">
+                            <label for="">Equity</label>
+                            <input value="{{TEQTY}}" name="TEQTY" required class="form-control"
+                                placeholder="Equity Threshold (Required)">
+                        </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    {{!-- <div class="col">
                         <input value="{{KCB}}" name="KCB" class="form-control" placeholder="KCB Initial (Optional)">
-                    </div>
+                    </div> --}}
                     <div class="col">
-                        <input value="{{TKCB}}" name="TKCB" required class="form-control"
-                            placeholder="KCB Threshold (Required)">
+                        <div class="form-group">
+                            <label for="">KCB</label>
+                            <input value="{{TKCB}}" name="TKCB" required class="form-control"
+                                placeholder="KCB Threshold (Required)">
+                        </div>
+
                     </div>
                 </div>
                 <div class="text-center">
-                    <button class="btn btn-primary btn-lg" type="submit">Update</a>
+                    <button class="btn btn-primary btn-lg" type="submit">Update</button>
+                    <a href="/">
+                        <button style="margin: 0 1rem" class="btn btn-warning btn-lg" type="button">Cancel</a>
+                    </a>
                 </div>
             </form>
             </p>

@@ -6,13 +6,7 @@ const cron = require("node-cron");
 const path = require("path");
 const exphbs = require("express-handlebars");
 
-let SCOM = 30;
-let KCB = 37.9;
-let EQTY = 36.5;
-
-let TSCOM = 28;
-let TKCB = 32;
-let TEQTY = 30;
+const { update, read } = require("./db");
 
 let task = null;
 
@@ -37,7 +31,7 @@ const sendSms = (message) => {
     message,
   };
 
-  // Send message and capture the response or error
+  //Send message and capture the response or error
   sms
     .send(options)
     .then((response) => {
@@ -47,6 +41,7 @@ const sendSms = (message) => {
       console.log(`sms failed: ${message}`);
       console.error(error);
     });
+  // console.log(message);
 };
 
 const getPrice = async (company) => {
@@ -81,38 +76,49 @@ const restartCron = () => {
   if (task) {
     task.destroy();
   }
-  task = cron.schedule("* * * * *", async () => {
+  task = cron.schedule("*/5 * * * *", async () => {
     console.log("Cron started " + new Date());
     const scom = await getPrice("SCOM");
     const kcb = await getPrice("KCB");
     const eqty = await getPrice("EQTY");
 
+    const SCOM = await read("SCOM/current");
+    const KCB = await read("KCB/current");
+    const EQTY = await read("EQTY/current");
+
+    const TSCOM = await read("SCOM/threshold");
+    const TKCB = await read("KCB/threshold");
+    const TEQTY = await read("EQTY/threshold");
+
     if (scom !== SCOM) {
-      const temp = SCOM;
-      SCOM = scom;
-      if (SCOM > TSCOM) {
+      // update db
+      await update("SCOM/current", scom);
+
+      if (scom > TSCOM) {
         sendSms(
-          `Safaricom stock is at ${SCOM}. It has hit threshold: ${TSCOM}. Last recorded stock was ${temp}`
+          `Safaricom stock is at ${scom}. It has hit threshold: ${TSCOM}. Last recorded stock was ${SCOM}`
         );
       }
     }
 
     if (kcb !== KCB) {
-      const temp = KCB;
-      KCB = kcb;
-      if (KCB > TKCB) {
+      // update db
+      await update("KCB/current", kcb);
+
+      if (kcb > TKCB) {
         sendSms(
-          `KCB stock is at ${KCB}. It has hit threshold: ${TKCB}. Last recorded stock was ${temp}`
+          `KCB stock is at ${kcb}. It has hit threshold: ${TKCB}. Last recorded stock was ${KCB}`
         );
       }
     }
 
     if (eqty !== EQTY) {
-      const temp = EQTY;
-      EQTY = eqty;
-      if (EQTY > TEQTY) {
+      // update db
+      await update("EQTY/current", eqty);
+
+      if (eqty > TEQTY) {
         sendSms(
-          `Equity stock is at ${EQTY}. It has hit threshold: ${TEQTY}. Last recorded stock was ${temp}`
+          `Equity stock is at ${eqty}. It has hit threshold: ${TEQTY}. Last recorded stock was ${EQTY}`
         );
       }
     }
@@ -124,32 +130,39 @@ const restartCron = () => {
 restartCron();
 
 app.get("/init", async (req, res) => {
-  SCOM = parseFloat(req.query.SCOM) || SCOM;
-  KCB = parseFloat(req.query.KCB) || KCB;
-  EQTY = parseFloat(req.query.EQTY) || EQTY;
+  const tscom = parseFloat(req.query.TSCOM);
+  const tkcb = parseFloat(req.query.TKCB);
+  const teqty = parseFloat(req.query.TEQTY);
 
-  TSCOM = parseFloat(req.query.TSCOM) || TSCOM;
-  TKCB = parseFloat(req.query.TKCB) || TKCB;
-  TEQTY = parseFloat(req.query.TEQTY) || TEQTY;
+  if (tscom) await update("SCOM/threshold", tscom);
+  if (tkcb) await update("KCB/threshold", tkcb);
+  if (teqty) await update("EQTY/threshold", teqty);
 
-  console.log("Safaricom threshold", TSCOM);
-  console.log("KCB threshold", TKCB);
-  console.log("Equity threshold", TEQTY);
-  console.log("\n");
-  console.log("Safaricom", SCOM);
-  console.log("KCB", KCB);
-  console.log("Equity", EQTY);
+  console.log("Safaricom threshold", tscom);
+  console.log("KCB threshold", tkcb);
+  console.log("Equity threshold", teqty);
 
   restartCron();
   res.redirect("/");
 });
 
-app.get("/update", (req, res) => {
-  res.render("update", { SCOM, EQTY, KCB, TSCOM, TEQTY, TKCB });
+const getStatus = async () => {
+  const SCOM = await read("SCOM/current");
+  const KCB = await read("KCB/current");
+  const EQTY = await read("EQTY/current");
+
+  const TSCOM = await read("SCOM/threshold");
+  const TKCB = await read("KCB/threshold");
+  const TEQTY = await read("EQTY/threshold");
+  return { SCOM, EQTY, KCB, TSCOM, TEQTY, TKCB };
+};
+
+app.get("/update", async (req, res) => {
+  res.render("update", await getStatus());
 });
 
-app.get("/", (req, res) => {
-  res.render("home", { SCOM, EQTY, KCB, TSCOM, TEQTY, TKCB });
+app.get("/", async (req, res) => {
+  res.render("home", await getStatus());
 });
 
 app.listen(process.env.PORT || 3000, () => {
