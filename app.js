@@ -27,7 +27,7 @@ const sendSms = (message) => {
 
   // Use the service
   const options = {
-    to: ["+254727683173", "+254748824945"],
+    to: ["+254748824945"],
     message,
   };
 
@@ -41,13 +41,13 @@ const sendSms = (message) => {
       console.log(`sms failed: ${message}`);
       console.error(error);
     });
-  // console.log(message);
+  console.log(message);
 };
 
-const getPrice = async (company) => {
+const getPrice = async () => {
   let browser;
   try {
-    const url = `https://live.mystocks.co.ke/stock=${company}`;
+    const url = `https://www.nse.co.ke`;
     browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
@@ -57,11 +57,19 @@ const getPrice = async (company) => {
     });
     const html = await page.content();
 
-    const price = parseFloat($("#rtPrice", html).text());
-    console.log(company, price);
+    const items = $(".items", html);
+
+    const data = {};
+    items.each((i, item) => {
+      const companyName = $(".issuerdata", item).text();
+      const companyValue = $(".pricedata", item).text();
+
+      data[companyName] = companyValue;
+    });
 
     await browser.close();
-    return price;
+
+    return data;
   } catch (e) {
     console.error(e);
     try {
@@ -76,11 +84,12 @@ const restartCron = () => {
   if (task) {
     task.destroy();
   }
-  task = cron.schedule("*/5 * * * *", async () => {
+  task = cron.schedule("*/10 * * * *", async () => {
     console.log("Cron started " + new Date());
-    const scom = await getPrice("SCOM");
-    const kcb = await getPrice("KCB");
-    const eqty = await getPrice("EQTY");
+    const data = await getPrice();
+    const scom = data["SCOM"];
+    const kcb = data["KCB"];
+    const eqty = data["EQTY"];
 
     const SCOM = await read("SCOM/current");
     const KCB = await read("KCB/current");
@@ -94,7 +103,7 @@ const restartCron = () => {
       // update db
       await update("SCOM/current", scom);
 
-      if (scom > TSCOM) {
+      if (scom <= TSCOM) {
         sendSms(
           `Safaricom stock is at ${scom}. It has hit threshold: ${TSCOM}. Last recorded stock was ${SCOM}`
         );
@@ -105,7 +114,7 @@ const restartCron = () => {
       // update db
       await update("KCB/current", kcb);
 
-      if (kcb > TKCB) {
+      if (kcb <= TKCB) {
         sendSms(
           `KCB stock is at ${kcb}. It has hit threshold: ${TKCB}. Last recorded stock was ${KCB}`
         );
@@ -116,7 +125,7 @@ const restartCron = () => {
       // update db
       await update("EQTY/current", eqty);
 
-      if (eqty > TEQTY) {
+      if (eqty <= TEQTY) {
         sendSms(
           `Equity stock is at ${eqty}. It has hit threshold: ${TEQTY}. Last recorded stock was ${EQTY}`
         );
