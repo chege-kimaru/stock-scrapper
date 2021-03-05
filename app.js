@@ -90,14 +90,17 @@ const restartCron = () => {
     const scom = data["SCOM"];
     const kcb = data["KCB"];
     const eqty = data["EQTY"];
+    const bat = data["BAT"];
 
     const SCOM = await read("SCOM/current");
     const KCB = await read("KCB/current");
     const EQTY = await read("EQTY/current");
+    const BAT = await read("BAT/current");
 
     const TSCOM = await read("SCOM/threshold");
     const TKCB = await read("KCB/threshold");
     const TEQTY = await read("EQTY/threshold");
+    const TBAT = await read("BAT/threshold");
 
     if (scom !== SCOM) {
       // update db
@@ -131,6 +134,17 @@ const restartCron = () => {
         );
       }
     }
+
+    if (bat !== BAT) {
+      // update db
+      await update("BAT/current", bat);
+
+      if (bat >= TBAT) {
+        sendSms(
+          `BAT stock is at ${bat}. It has hit threshold: ${BAT}. Last recorded stock was ${BAT}`
+        );
+      }
+    }
     console.log("Cron completed " + new Date());
   });
   task.start();
@@ -142,14 +156,17 @@ app.get("/init", async (req, res) => {
   const tscom = parseFloat(req.query.TSCOM);
   const tkcb = parseFloat(req.query.TKCB);
   const teqty = parseFloat(req.query.TEQTY);
+  const tbat = parseFloat(req.query.TBAT);
 
   if (tscom) await update("SCOM/threshold", tscom);
   if (tkcb) await update("KCB/threshold", tkcb);
   if (teqty) await update("EQTY/threshold", teqty);
+  if (tbat) await update("BAT/threshold", tbat);
 
   console.log("Safaricom threshold", tscom);
   console.log("KCB threshold", tkcb);
   console.log("Equity threshold", teqty);
+  console.log("BAT threshold", tbat);
 
   restartCron();
   res.redirect("/");
@@ -159,11 +176,13 @@ const getStatus = async () => {
   const SCOM = await read("SCOM/current");
   const KCB = await read("KCB/current");
   const EQTY = await read("EQTY/current");
+  const BAT = await read("BAT/current");
 
   const TSCOM = await read("SCOM/threshold");
   const TKCB = await read("KCB/threshold");
   const TEQTY = await read("EQTY/threshold");
-  return { SCOM, EQTY, KCB, TSCOM, TEQTY, TKCB };
+  const TBAT = await read("BAT/threshold");
+  return { SCOM, EQTY, KCB, BAT, TSCOM, TEQTY, TKCB, TBAT };
 };
 
 app.get("/update", async (req, res) => {
