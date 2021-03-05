@@ -102,6 +102,9 @@ const restartCron = () => {
     const TEQTY = await read("EQTY/threshold");
     const TBAT = await read("BAT/threshold");
 
+    const LBAT = await read("BAT/limit");
+    console.log("LBAT", LBAT);
+
     if (scom !== SCOM) {
       // update db
       await update("SCOM/current", scom);
@@ -139,7 +142,18 @@ const restartCron = () => {
       // update db
       await update("BAT/current", bat);
 
-      if (bat >= TBAT) {
+      if (bat >= LBAT) {
+        sendSms(
+          `BAT stock is at ${bat}. It is above limit: ${LBAT}. Last recorded stock was ${BAT}`
+        );
+      }
+    }
+
+    if (bat !== BAT) {
+      // update db
+      await update("BAT/current", bat);
+
+      if (bat <= TBAT) {
         sendSms(
           `BAT stock is at ${bat}. It has hit threshold: ${BAT}. Last recorded stock was ${BAT}`
         );
@@ -182,7 +196,9 @@ const getStatus = async () => {
   const TKCB = await read("KCB/threshold");
   const TEQTY = await read("EQTY/threshold");
   const TBAT = await read("BAT/threshold");
-  return { SCOM, EQTY, KCB, BAT, TSCOM, TEQTY, TKCB, TBAT };
+
+  const LBAT = await read("BAT/limit");
+  return { SCOM, EQTY, KCB, BAT, TSCOM, TEQTY, TKCB, TBAT, LBAT };
 };
 
 app.get("/update", async (req, res) => {
